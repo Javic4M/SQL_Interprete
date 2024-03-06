@@ -1,0 +1,131 @@
+package com.mycompany.sql_interprete.main.gramatica;
+
+import java_cup.runtime.*;
+
+parser code {:
+
+    private Symbol symbol;
+    private String nombre = "";
+
+    public Sintactico(Lexico lexico) {
+        super(lexico);
+    }
+
+    public void syntax_error(Symbol cur_token) {
+        symbol = cur_token;
+
+        if (cur_token.sym == 22 || cur_token.sym == 23) {
+            nombre = (String)(cur_token.value);
+        }
+    }
+
+    public Symbol getSymbol() {
+        return this.symbol;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+:}
+
+
+/* Terminales */
+terminal            SELECCIONAR, INSERTAR, ACTUALIZAR, ELIMINAR, EN, FILTRAR, VALORES, ASIGNAR, COMILLA, PARANTESIS_I, PARANTESIS_D, PUNTO, COMA, PUNTO_Y_COMA, POR, IGUAL, MENOR, MAYOR, MENOR_IGUAL, MAYOR_IGUAL;
+terminal String     PALABRA;
+terminal int        ENTERO;
+
+/* No Terminales */
+non terminal        inicial, seleccion, raiz, raiz2, raiz3, raiz4, columna, columna2, columna3, proyecto, proyecto2, proyecto3, proyecto4, filtro, valores, complemento1, complemento2;
+
+/* Gramatica */
+start with inicial;
+
+inicial ::= SELECCIONAR seleccion
+	| INSERTAR EN raiz2
+        | ACTUALIZAR EN raiz3
+        | ELIMINAR EN raiz4
+        ;
+					
+/* Seleccionar */
+seleccion ::= PALABRA COMA columna
+        | PALABRA EN raiz
+        | POR EN raiz
+        ;
+			
+columna ::= PALABRA COMA columna
+        | PALABRA EN raiz
+        ;
+		
+raiz ::= PALABRA PUNTO proyecto
+;
+
+proyecto ::= PALABRA PUNTO proyecto
+        | PALABRA FILTRAR filtro
+        ;
+			
+/* Insertar */
+raiz2 ::= PALABRA PUNTO proyecto2
+;
+
+proyecto2 ::= PALABRA PUNTO proyecto
+        | PALABRA PARANTESIS_I columna2
+        | PALABRA POR VALORES PARANTESIS_I valores
+        ;
+			
+columna2 ::= PALABRA COMA columna2
+        | PALABRA PARANTESIS_D VALORES PARANTESIS_I valores
+        ;
+			
+valores ::= COMILLA PALABRA COMILLA COMA valores
+        | ENTERO COMA valores
+        | COMILLA PALABRA COMILLA PARANTESIS_D PUNTO_Y_COMA inicial
+        | ENTERO PARANTESIS_D PUNTO_Y_COMA inicial
+        | COMILLA PALABRA COMILLA PARANTESIS_D PUNTO_Y_COMA
+        | ENTERO PARANTESIS_D PUNTO_Y_COMA
+        ;
+	
+/* Actualizar */
+raiz3 ::= PALABRA PUNTO proyecto3
+;
+
+proyecto3 ::= PALABRA PUNTO proyecto3
+	| PALABRA ASIGNAR columna3
+        ;
+			
+columna3 ::= PALABRA IGUAL COMILLA PALABRA COMILLA COMA columna3
+        | PALABRA IGUAL ENTERO COMA columna3
+        | PALABRA IGUAL COMILLA PALABRA COMILLA FILTRAR filtro
+        | PALABRA IGUAL ENTERO FILTRAR filtro
+        | PALABRA IGUAL COMILLA PALABRA COMILLA PUNTO_Y_COMA inicial
+        | PALABRA IGUAL ENTERO PUNTO_Y_COMA inicial
+        | PALABRA IGUAL COMILLA PALABRA COMILLA PUNTO_Y_COMA
+        | PALABRA IGUAL ENTERO PUNTO_Y_COMA
+        ;
+
+/* Eliminar */
+raiz4 ::= PALABRA PUNTO proyecto4
+;
+
+proyecto4 ::= PALABRA PUNTO proyecto4
+	| PALABRA FILTRAR filtro
+        | PALABRA PUNTO_Y_COMA inicial
+        | PALABRA PUNTO_Y_COMA
+        ;
+			
+filtro ::= PALABRA IGUAL complemento1
+        | PALABRA MENOR complemento2
+        | PALABRA MAYOR complemento2
+        | PALABRA MENOR_IGUAL complemento2
+        | PALABRA MAYOR_IGUAL complemento2
+        ;
+
+complemento1 ::= COMILLA PALABRA COMILLA PUNTO_Y_COMA inicial
+        | ENTERO PUNTO_Y_COMA inicial
+        | COMILLA PALABRA COMILLA PUNTO_Y_COMA
+        | ENTERO PUNTO_Y_COMA
+        ;
+
+complemento2 ::= ENTERO PUNTO_Y_COMA inicial
+        | ENTERO PUNTO_Y_COMA
+        ;
